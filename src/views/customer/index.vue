@@ -19,16 +19,18 @@
       stripe
       style="width: 100%">
       <el-table-column prop="customer_id" label="ID" show-overflow-tooltip min-width="130" />
-      <el-table-column prop="nickname" label="姓名" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="nickname" label="姓名" show-overflow-tooltip min-width="80" />
       <el-table-column prop="tel" label="电话" show-overflow-tooltip min-width="100" />
       <el-table-column prop="sum" label="金额" show-overflow-tooltip min-width="100"  />
-      <el-table-column prop="vip_level" label="会员" show-overflow-tooltip min-width="100" :formatter="(a,b,c) => formatVip(c)" />
+      <el-table-column prop="vip_level" label="会员" show-overflow-tooltip min-width="80" :formatter="(a,b,c) => formatVip(c)" />
       <el-table-column prop="department" label="店铺" show-overflow-tooltip min-width="100" />
       <el-table-column prop="introduction" label="备注" show-overflow-tooltip min-width="100" />
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="150">
         <template slot-scope="scope">
+          <el-button type="text" @click="editHandle(scope.row, 3)">消费</el-button>
+          <el-button type="text" @click="editHandle(scope.row, 2)">充值</el-button>
           <el-button type="text" @click="editHandle(scope.row, 1)">编辑</el-button>
-          <el-button type="text" @click="delelteHandle(scope.row)">删除</el-button>
+<!--          <el-button type="text" @click="delelteHandle(scope.row)">删除</el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -46,8 +48,15 @@
     <!--    新增编辑-->
     <user-edit
       :data-info="currentRow"
-      :switch-btn="!!currentRow"
-      @close="currentRow = null"
+      :switch-btn="editSwitch"
+      @close="editSwitch = false"
+      @success="getList"
+    />
+    <!--    扣款 升级-->
+    <consume-edit
+      :data-info="currentRow"
+      :switch-btn="consumeSwitch"
+      @close="consumeSwitch = false"
       @success="getList"
     />
   </div>
@@ -57,7 +66,8 @@
 export default {
   name: 'Customer',
   components:{
-    UserEdit: () => import('./edit')
+    UserEdit: () => import('./edit'),
+    ConsumeEdit: () => import('./consume-edit')
   },
   data() {
     return {
@@ -71,7 +81,9 @@ export default {
       },
       tableData: [],
       totalNum: 1,
-      currentRow: null
+      currentRow: null,
+      editSwitch: false,
+      consumeSwitch: false
     }
   },
   created() {
@@ -81,18 +93,27 @@ export default {
     formatVip(val) {
       switch (val) {
         case 0:
-          return '普通会员'
+          return '银卡'
         case 1:
-          return '超级会员'
+          return '金卡'
+        case 2:
+          return '白金卡'
+        case 3:
+          return '至尊卡'
         default:
           return '-'
       }
     },
     editHandle(row, type) {
-      if (type) {
+      if (type === 1) {
         this.currentRow = JSON.parse(JSON.stringify(row))
+        this.editSwitch = true
+      } else if (type === 2 || type === 3) {
+        this.currentRow = JSON.parse(JSON.stringify({...row, type}))
+        this.consumeSwitch = true
       } else {
         this.currentRow = {}
+        this.editSwitch = true
       }
     },
     delelteHandle(row) {

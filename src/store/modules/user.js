@@ -4,7 +4,7 @@ import router, { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
-  name: '',
+  userinfo: sessionStorage.getItem('userinfo') ? JSON.parse(sessionStorage.getItem('userinfo')) : '',
   avatar: '',
   introduction: '',
   roles: []
@@ -17,8 +17,9 @@ const mutations = {
   SET_INTRODUCTION: (state, introduction) => {
     state.introduction = introduction
   },
-  SET_NAME: (state, name) => {
-    state.name = name
+  SET_NAME: (state, userinfo) => {
+    state.userinfo = userinfo
+    sessionStorage.setItem('userinfo', JSON.stringify(userinfo))
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
@@ -34,9 +35,10 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
-        const { userinfo } = response
-        commit('SET_TOKEN', userinfo._id)
-        setToken(userinfo._id)
+        const { userinfo, token } = response
+        commit('SET_TOKEN', token)
+        commit('SET_NAME', userinfo)
+        setToken(token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -70,7 +72,6 @@ const actions = {
       //   reject(error)
       // })
       commit('SET_ROLES', ['admin'])
-      commit('SET_NAME', 'admin')
       commit('SET_AVATAR', 'sddd')
       commit('SET_INTRODUCTION', 'admin')
       resolve({roles:['admin']})

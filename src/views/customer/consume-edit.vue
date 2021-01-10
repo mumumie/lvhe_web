@@ -1,27 +1,26 @@
 <template>
   <el-dialog
-    :title="isEdit ? '编辑会员' : '新增会员'"
+    :title="isEdit ? '会员充值' : '消费金额'"
     :visible.sync="switchBtn"
     width="500px"
     :close-on-click-modal="false"
     :before-close="handleClose"
   >
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" class="demo-ruleForm">
-      <el-form-item label="ID" v-if="isEdit">
-        <el-input v-model="ruleForm.customer_id" :disabled="isEdit" />
-      </el-form-item>
-      <el-form-item label="姓名" prop="nickname">
-        <el-input v-model="ruleForm.nickname" />
-      </el-form-item>
-      <el-form-item label="电话" prop="tel">
-        <el-input v-model="ruleForm.tel" />
-      </el-form-item>
-      <el-form-item label="金额" prop="sum">
+      <el-form-item label="账户余额">
         <el-input v-model="ruleForm.sum" :disabled="isEdit">
           <template slot="append">元</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="会员" prop="vip_level">
+      <el-form-item label="消费金额" prop="consume" v-if="!isEdit">
+        <el-input v-model="ruleForm.consume">
+          <template slot="append">{{ discount(ruleForm.vip_level) * 10 }} 折</template>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="实际扣款" v-if="!isEdit">
+        <div>{{ ruleForm.consume ? ruleForm.consume * discount(ruleForm.vip_level) : 0 }} 元</div>
+      </el-form-item>
+      <el-form-item label="会员" prop="vip_level" v-if="isEdit">
         <el-select v-model="ruleForm.vip_level" placeholder="请选择会员等级">
           <el-option label="银卡" :value="0" />
           <el-option label="金卡" :value="1" />
@@ -29,14 +28,10 @@
           <el-option label="至尊卡" :value="3" />
         </el-select>
       </el-form-item>
-      <el-form-item label="店铺名" prop="department">
-        <el-select v-model="ruleForm.department" placeholder="请选择店铺">
-          <el-option label="南湖店" value="南湖店" />
-          <el-option label="光谷店" value="光谷店" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="备注" prop="remark">
-        <el-input type="textarea" v-model="ruleForm.remark" placeholder="备注..." :rows="3" />
+      <el-form-item label="充值金额" prop="consume" v-if="isEdit">
+        <el-input v-model="ruleForm.consume">
+          <template slot="append">元</template>
+        </el-input>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -58,31 +53,23 @@ const defaultForm = {
 export default {
   props: ['switchBtn', 'dataInfo'],
   data() {
+    const isNum = (rule, value, callback) => {
+      const consume= /^[0-9]*$/
+      if (!consume.test(value)) {
+        callback(new Error('消费金额只能为整数'))
+      }else{
+        callback()
+      }
+    }
     return {
-      dialogVisible: false,
-      ruleForm: {
-        nickname: '',
-        tel: '',
-        department: '南湖店',
-        vip_level: 0,
-        sum: 0,
-        remark: ''
-      },
+      ruleForm: {},
       rules: {
-        nickname: [
-          { required: true, message: '请输入姓名', trigger: 'blur' }
-        ],
-        tel: [
-          { required: true, message: '请输入电话', trigger: 'blur' }
+        consume: [
+          { required: true, message: '请输入消费金额', trigger: 'blur' },
+          { validator: isNum, trigger: 'blur' }
         ],
         vip_level: [
           { required: true, message: '请选择会员等级', trigger: 'change' }
-        ],
-        department: [
-          { required: true, message: '请选择店铺', trigger: 'change' }
-        ],
-        sum: [
-          { required: true, message: '请选择店铺', trigger: 'change' }
         ]
       }
     }
@@ -102,23 +89,47 @@ export default {
   },
   computed: {
     isEdit() {
-      return !!this.ruleForm._id
+      if (this.dataInfo && this.dataInfo.type === 2) {
+        return true
+      } else {
+        return false
+      }
+
     }
   },
   methods: {
+    discount(val) {
+      switch (val) {
+        case 0:
+          return 0.9
+        case 1:
+          return 0.75
+        case 2:
+          return 0.5
+        case 3:
+          return 0.3
+        default:
+          return 1
+      }
+    },
     handleClose(done) {
       this.$emit('close')
     },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = this.ruleForm
-          let url = '/customer/add'
-          if (params._id) {
-            url = '/customer/edit'
+          let params = this.ruleForm
+          let url = '/customer/consume'
+          if (this.isEdit) {
+            url = '/customer/recharge'
+          } else {
+            if (params.sum < params.consume * this.discount(params.vip_level)) {
+              this.$message.error('余额不足，请先充值！')
+              return
+            }
           }
           this.$ajax.vpost(url, params).then(res => {
-            this.$message.success(params._id ? '编辑成功' : '新增成功！')
+            this.$message.success(this.isEdit ? '充值成功' : '扣款成功！')
             this.$emit('close')
             this.$emit('success')
           })
