@@ -6,8 +6,8 @@
     :close-on-click-modal="false"
     :before-close="handleClose"
   >
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" class="demo-ruleForm">
-      <el-form-item label="ID" v-if="isEdit">
+    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm">
+      <el-form-item v-if="isEdit" label="ID">
         <el-input v-model="ruleForm.customer_id" :disabled="isEdit" />
       </el-form-item>
       <el-form-item label="姓名" prop="nickname">
@@ -23,20 +23,26 @@
       </el-form-item>
       <el-form-item label="会员" prop="vip_level">
         <el-select v-model="ruleForm.vip_level" placeholder="请选择会员等级">
-          <el-option label="银卡" :value="0" />
-          <el-option label="金卡" :value="1" />
-          <el-option label="白金卡" :value="2" />
-          <el-option label="至尊卡" :value="3" />
+          <el-option
+            v-for="item in vip_level"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="店铺名" prop="department">
         <el-select v-model="ruleForm.department" placeholder="请选择店铺">
-          <el-option label="南湖店" value="南湖店" />
-          <el-option label="光谷店" value="光谷店" />
+          <el-option
+            v-for="(item, index) in departmentList"
+            :key="index"
+            :label="item"
+            :value="item"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input type="textarea" v-model="ruleForm.remark" placeholder="备注..." :rows="3" />
+        <el-input v-model="ruleForm.remark" type="textarea" placeholder="备注..." :rows="3" />
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -47,6 +53,8 @@
 </template>
 
 <script>
+import { vip_level, department } from '@/utils/formatter'
+import { mapGetters } from 'vuex'
 const defaultForm = {
   nickname: '',
   tel: '',
@@ -101,6 +109,15 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([
+      'userinfo'
+    ]),
+    vip_level() {
+      return vip_level
+    },
+    departmentList() {
+      return department
+    },
     isEdit() {
       return !!this.ruleForm._id
     }
@@ -112,7 +129,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = this.ruleForm
+          const params = Object.assign(this.ruleForm, { userid: this.userinfo._id })
           let url = '/customer/add'
           if (params._id) {
             url = '/customer/edit'
@@ -126,7 +143,7 @@ export default {
           console.log('error submit!!')
           return false
         }
-      });
+      })
     }
   }
 }

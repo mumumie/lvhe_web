@@ -6,21 +6,21 @@
     :close-on-click-modal="false"
     :before-close="handleClose"
   >
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" class="demo-ruleForm">
+    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm">
       <el-form-item label="账户余额">
         <el-input v-model="ruleForm.sum" :disabled="isEdit">
           <template slot="append">元</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="消费金额" prop="consume" v-if="!isEdit">
+      <el-form-item v-if="!isEdit" label="消费金额" prop="consume">
         <el-input v-model="ruleForm.consume">
           <template slot="append">{{ discount(ruleForm.vip_level) * 10 }} 折</template>
         </el-input>
       </el-form-item>
-      <el-form-item label="实际扣款" v-if="!isEdit">
+      <el-form-item v-if="!isEdit" label="实际扣款">
         <div>{{ ruleForm.consume ? ruleForm.consume * discount(ruleForm.vip_level) : 0 }} 元</div>
       </el-form-item>
-      <el-form-item label="会员" prop="vip_level" v-if="isEdit">
+      <el-form-item v-if="isEdit" label="会员" prop="vip_level">
         <el-select v-model="ruleForm.vip_level" placeholder="请选择会员等级">
           <el-option label="银卡" :value="0" />
           <el-option label="金卡" :value="1" />
@@ -28,7 +28,7 @@
           <el-option label="至尊卡" :value="3" />
         </el-select>
       </el-form-item>
-      <el-form-item label="充值金额" prop="consume" v-if="isEdit">
+      <el-form-item v-if="isEdit" label="充值金额" prop="consume">
         <el-input v-model="ruleForm.consume">
           <template slot="append">元</template>
         </el-input>
@@ -42,6 +42,7 @@
 </template>
 
 <script>
+import { discount } from '@/utils/formatter'
 const defaultForm = {
   nickname: '',
   tel: '',
@@ -54,10 +55,10 @@ export default {
   props: ['switchBtn', 'dataInfo'],
   data() {
     const isNum = (rule, value, callback) => {
-      const consume= /^[0-9]*$/
+      const consume = /^[0-9]*$/
       if (!consume.test(value)) {
         callback(new Error('消费金额只能为整数'))
-      }else{
+      } else {
         callback()
       }
     }
@@ -74,6 +75,15 @@ export default {
       }
     }
   },
+  computed: {
+    isEdit() {
+      if (this.dataInfo && this.dataInfo.type === 2) {
+        return true
+      } else {
+        return false
+      }
+    }
+  },
   watch: {
     switchBtn: {
       handler(val) {
@@ -87,30 +97,9 @@ export default {
       }
     }
   },
-  computed: {
-    isEdit() {
-      if (this.dataInfo && this.dataInfo.type === 2) {
-        return true
-      } else {
-        return false
-      }
-
-    }
-  },
   methods: {
     discount(val) {
-      switch (val) {
-        case 0:
-          return 0.9
-        case 1:
-          return 0.75
-        case 2:
-          return 0.5
-        case 3:
-          return 0.3
-        default:
-          return 1
-      }
+      return discount(val)
     },
     handleClose(done) {
       this.$emit('close')
@@ -118,7 +107,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          let params = this.ruleForm
+          const params = this.ruleForm
           let url = '/customer/consume'
           if (this.isEdit) {
             url = '/customer/recharge'
@@ -137,7 +126,7 @@ export default {
           console.log('error submit!!')
           return false
         }
-      });
+      })
     }
   }
 }

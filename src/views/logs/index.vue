@@ -46,23 +46,13 @@
         @current-change="handleCurrentChange"
       />
     </div>
-    <!--    新增编辑-->
-    <user-edit
-      :data-info="currentRow"
-      :switch-btn="!!currentRow"
-      @close="currentRow = null"
-      @success="getList"
-    />
   </div>
 </template>
 
 <script>
 import { roleFilter } from '@/utils/formatter'
 export default {
-  name: 'User',
-  components: {
-    UserEdit: () => import('./edit')
-  },
+  name: 'Logs',
   data() {
     return {
       ruleForm: {

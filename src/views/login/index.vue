@@ -200,7 +200,7 @@ $cursor: #333;
 
   .el-form-item {
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 5px;
     color: #454545;
   }
@@ -226,8 +226,8 @@ $light_gray:#333;
     padding: 35px;
     margin: 150px auto 0;
     overflow: hidden;
-    background: rgba(0,0,0,0.1);
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    background: rgba(0,0,0,0.3);
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,.3);
     border: 1px solid #ccc;
   }
 

@@ -6,7 +6,7 @@
     :close-on-click-modal="false"
     :before-close="handleClose"
   >
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="80px" class="demo-ruleForm">
+    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm">
       <el-form-item label="账号" prop="username">
         <el-input v-model="ruleForm.username" :disabled="isEdit" />
       </el-form-item>
@@ -27,12 +27,16 @@
       </el-form-item>
       <el-form-item label="店铺名" prop="department">
         <el-select v-model="ruleForm.department" placeholder="请选择店铺">
-          <el-option label="南湖店" value="南湖店" />
-          <el-option label="光谷店" value="光谷店" />
+          <el-option
+            v-for="(item, index) in departmentList"
+            :key="index"
+            :label="item"
+            :value="item"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="备注" prop="introduction">
-        <el-input type="textarea" v-model="ruleForm.introduction" placeholder="备注..." :rows="3" />
+        <el-input v-model="ruleForm.introduction" type="textarea" placeholder="备注..." :rows="3" />
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -43,6 +47,7 @@
 </template>
 
 <script>
+import { department } from '@/utils/formatter'
 const defaultForm = {
   username: '',
   password: '',
@@ -52,6 +57,7 @@ const defaultForm = {
   department: '南湖店',
   introduction: ''
 }
+
 export default {
   props: ['switchBtn', 'dataInfo'],
   data() {
@@ -89,6 +95,14 @@ export default {
       }
     }
   },
+  computed: {
+    departmentList() {
+      return department
+    },
+    isEdit() {
+      return !!this.ruleForm._id
+    }
+  },
   watch: {
     switchBtn: {
       handler(val) {
@@ -100,11 +114,6 @@ export default {
           }
         }
       }
-    }
-  },
-  computed: {
-    isEdit() {
-      return !!this.ruleForm._id
     }
   },
   methods: {
@@ -128,7 +137,7 @@ export default {
           console.log('error submit!!')
           return false
         }
-      });
+      })
     }
   }
 }
