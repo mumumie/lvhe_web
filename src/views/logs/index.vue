@@ -2,19 +2,14 @@
   <div class="content-box">
     <el-form ref="ruleForm" :model="ruleForm" inline class="demo-ruleForm">
       <el-form-item label="" prop="name">
-        <el-input v-model="ruleForm.username" placeholder="账号" />
+        <el-select v-model="ruleForm.type" clearable placeholder="类型">
+          <el-option label="新增" :value="1" />
+          <el-option label="消费" :value="2" />
+          <el-option label="充值" :value="3" />
+        </el-select>
       </el-form-item>
-      <!--      <el-form-item label="" prop="role">-->
-      <!--        <el-select v-model="ruleForm.role" clearable placeholder="角色">-->
-      <!--          <el-option label="管理员" :value="1" />-->
-      <!--          <el-option label="店员" :value="2" />-->
-      <!--        </el-select>-->
-      <!--      </el-form-item>-->
       <el-form-item>
-        <el-button type="danger" @click="getList">查询</el-button>
-      </el-form-item>
-      <el-form-item style="float:right;">
-        <el-button type="primary" @click="editHandle({})">新增</el-button>
+        <el-button type="danger" @click="search">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -28,12 +23,6 @@
       <el-table-column prop="role" label="角色" show-overflow-tooltip min-width="100" :formatter="roleFilter" />
       <el-table-column prop="department" label="部门" show-overflow-tooltip min-width="100" />
       <el-table-column prop="introduction" label="备注" show-overflow-tooltip min-width="100" />
-      <el-table-column label="操作">
-        <template slot-scope="scope">
-          <el-button type="text" @click="editHandle(scope.row, 1)">编辑</el-button>
-          <!--          <el-button type="text" @click="delelteHandle(scope.row)">删除</el-button>-->
-        </template>
-      </el-table-column>
     </el-table>
     <div class="page-box">
       <el-pagination
@@ -56,7 +45,7 @@ export default {
   data() {
     return {
       ruleForm: {
-        username: ''
+        type: ''
       },
       pageMsg: {
         page: 1,
@@ -71,35 +60,23 @@ export default {
     this.getList()
   },
   methods: {
+    search() {
+      this.pageMsg.page = 1
+      this.getList()
+    },
     roleFilter(row, column, val) {
       return roleFilter(row, column, val)
     },
-    editHandle(row, type) {
-      if (type) {
-        this.currentRow = JSON.parse(JSON.stringify(row))
-      } else {
-        this.currentRow = {}
-      }
-    },
-    delelteHandle(row) {
-      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$ajax.vpost('/user/delete', { id: row._id }).then(res => {
-          this.$message.success('删除成功')
-          this.getList()
-        })
-      }).catch(() => {
-      })
-    },
     getList() {
-      const params = {
-        condition: this.ruleForm,
-        ...this.pageMsg
+      const params = {...this.pageMsg}
+      if (this.ruleForm.type) {
+        params.condition = {
+          type: {
+            '$in': [this.ruleForm.type]
+          }
+        }
       }
-      this.$ajax.vpost('/user/list', params).then(res => {
+      this.$ajax.vpost('/logs/list', params).then(res => {
         this.tableData = res.list
         this.totalNum = res.totalNum
       })
