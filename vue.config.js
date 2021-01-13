@@ -39,7 +39,7 @@ module.exports = {
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
         timeout: 1000 * 60,
-        target: `http://localhost:3000`,
+        target: `http://localhost:8080`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
