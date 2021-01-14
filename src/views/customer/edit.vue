@@ -22,7 +22,7 @@
         </el-input>
       </el-form-item>
       <el-form-item label="会员" prop="vip_level">
-        <el-select v-model="ruleForm.vip_level" placeholder="请选择会员等级">
+        <el-select v-model="ruleForm.vip_level" placeholder="请选择会员等级" :disabled="isEdit" style="width: 100%;">
           <el-option
             v-for="item in vip_level"
             :key="item.value"
@@ -32,7 +32,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="店铺名" prop="department">
-        <el-select v-model="ruleForm.department" placeholder="请选择店铺">
+        <el-select v-model="ruleForm.department" placeholder="请选择店铺" :disabled="isEdit" style="width: 100%;">
           <el-option
             v-for="(item, index) in departmentList"
             :key="index"
@@ -129,10 +129,12 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = Object.assign(this.ruleForm, { userid: this.userinfo._id })
+          const params = Object.assign({}, this.ruleForm)
           let url = '/customer/add'
           if (params._id) {
             url = '/customer/edit'
+          } else {
+            params.userid = this.userinfo.user_id
           }
           this.$ajax.vpost(url, params).then(res => {
             this.$message.success(params._id ? '编辑成功' : '新增成功！')

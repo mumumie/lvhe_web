@@ -1,5 +1,5 @@
-import axios from 'axios'
 import Vue from 'vue'
+import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken, setToken } from '@/utils/auth'
@@ -56,7 +56,7 @@ service.interceptors.response.use(
         duration: 5 * 1000
       })
       setToken('')
-      Vue.prototype.$router.push('/login')
+      location.reload()
     } else {
       Message({
         message: res.msg || 'Error',
@@ -77,7 +77,7 @@ service.interceptors.response.use(
           })
         })
       }
-      return Promise.reject(new Error(res.message || 'Error'))
+      return Promise.reject(new Error(res.msg || 'Error'))
     }
   },
   error => {

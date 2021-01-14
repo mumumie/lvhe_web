@@ -17,12 +17,13 @@
       stripe
       style="width: 100%"
     >
-      <el-table-column prop="username" label="账号" show-overflow-tooltip min-width="100" />
-      <el-table-column prop="nickname" label="姓名" show-overflow-tooltip min-width="100" />
-      <el-table-column prop="tel" label="电话" show-overflow-tooltip min-width="100" />
-      <el-table-column prop="role" label="角色" show-overflow-tooltip min-width="100" :formatter="roleFilter" />
-      <el-table-column prop="department" label="部门" show-overflow-tooltip min-width="100" />
-      <el-table-column prop="introduction" label="备注" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="customer_id" label="客户姓名" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="type" label="日志类型" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="sum" label="余额" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="consume_sum" label="消费金额" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="recharge_sum" label="充值金额" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="user_id" label="操作人" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="createAt" label="时间" show-overflow-tooltip min-width="100" />
     </el-table>
     <div class="page-box">
       <el-pagination
@@ -68,7 +69,7 @@ export default {
       return roleFilter(row, column, val)
     },
     getList() {
-      const params = {...this.pageMsg}
+      const params = { ...this.pageMsg }
       if (this.ruleForm.type) {
         params.condition = {
           type: {
@@ -78,7 +79,7 @@ export default {
       }
       this.$ajax.vpost('/logs/list', params).then(res => {
         this.tableData = res.list
-        this.totalNum = res.totalNum
+        this.totalNum = res.total
       })
     },
     handleSizeChange(val) {

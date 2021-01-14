@@ -18,14 +18,16 @@
         </el-input>
       </el-form-item>
       <el-form-item v-if="!isEdit" label="实际扣款">
-        <div>{{ ruleForm.consume ? ruleForm.consume * discount(ruleForm.vip_level) : 0 }} 元</div>
+        <div>{{ isNaN(ruleForm.consume) ? 0 : (ruleForm.consume * discount(ruleForm.vip_level)).toFixed(2) }} 元</div>
       </el-form-item>
       <el-form-item v-if="isEdit" label="会员" prop="vip_level">
-        <el-select v-model="ruleForm.vip_level" placeholder="请选择会员等级">
-          <el-option label="银卡" :value="0" />
-          <el-option label="金卡" :value="1" />
-          <el-option label="白金卡" :value="2" />
-          <el-option label="至尊卡" :value="3" />
+        <el-select v-model="ruleForm.vip_level" placeholder="请选择会员等级" style="width: 100%;">
+          <el-option
+            v-for="item in vip_level"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item v-if="isEdit" label="充值金额" prop="consume">
@@ -42,7 +44,8 @@
 </template>
 
 <script>
-import { discount } from '@/utils/formatter'
+import { discount, vip_level } from '@/utils/formatter'
+import { mapGetters } from "vuex";
 const defaultForm = {
   nickname: '',
   tel: '',
@@ -76,6 +79,12 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([
+      'userinfo'
+    ]),
+    vip_level() {
+      return vip_level
+    },
     isEdit() {
       if (this.dataInfo && this.dataInfo.type === 2) {
         return true
@@ -107,7 +116,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = this.ruleForm
+          const params = Object.assign({ userid: this.userinfo.user_id }, this.ruleForm)
           let url = '/customer/consume'
           if (this.isEdit) {
             url = '/customer/recharge'

@@ -95,7 +95,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/customer/index'),
         name: 'Customer',
-        meta: { title: '会员管理', icon: 'peoples', noCache: false }
+        meta: { title: '会员管理', icon: 'peoples'}
       }
     ]
   },
@@ -107,7 +107,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/user/index'),
         name: 'User',
-        meta: { title: '用户管理', icon: 'user', noCache: false }
+        meta: { title: '用户管理', icon: 'user' }
       }
     ]
   },
@@ -119,7 +119,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/logs/index'),
         name: 'Log',
-        meta: { title: '日志管理', icon: 'documentation', noCache: false }
+        meta: { title: '日志管理', icon: 'documentation' }
       }
     ]
   },

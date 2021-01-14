@@ -61,7 +61,7 @@ export default {
     ])
   },
   created() {
-    console.log(this.userinfo.username);
+    // console.log(this.userinfo.username);
   },
   methods: {
     toggleSideBar() {

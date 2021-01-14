@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import { vip_level } from '@/utils/formatter'
 export default {
   name: 'Customer',
   components:{
@@ -88,20 +89,15 @@ export default {
   },
   created() {
     this.getList()
+    console.log(vip_level);
   },
   methods: {
     formatVip(val) {
-      switch (val) {
-        case 0:
-          return '银卡'
-        case 1:
-          return '金卡'
-        case 2:
-          return '白金卡'
-        case 3:
-          return '至尊卡'
-        default:
-          return '-'
+      const vip = vip_level.find(v => v.value === val)
+      if (!vip) {
+        return '-'
+      } else {
+        return vip.label
       }
     },
     editHandle(row, type) {
