@@ -11,6 +11,7 @@
         <el-button type="danger" @click="getList">查询</el-button>
       </el-form-item>
       <el-form-item style="float:right;">
+        <el-button type="warning" @click="editHandle({}, 4)">散客消费</el-button>
         <el-button type="primary" @click="editHandle({})">新增</el-button>
       </el-form-item>
     </el-form>
@@ -59,6 +60,11 @@
       @close="consumeSwitch = false"
       @success="getList"
     />
+    <!--    散户消费 -->
+    <consume-general
+      :switch-btn="generalSwitch"
+      @close="generalSwitch = false"
+    />
   </div>
 </template>
 
@@ -68,7 +74,8 @@ export default {
   name: 'Customer',
   components:{
     UserEdit: () => import('./edit'),
-    ConsumeEdit: () => import('./consume-edit')
+    ConsumeEdit: () => import('./consume-edit'),
+    ConsumeGeneral: () => import('./consume-general')
   },
   data() {
     return {
@@ -84,12 +91,12 @@ export default {
       totalNum: 1,
       currentRow: null,
       editSwitch: false,
-      consumeSwitch: false
+      consumeSwitch: false,
+      generalSwitch: false
     }
   },
   created() {
     this.getList()
-    console.log(vip_level);
   },
   methods: {
     formatVip(val) {
@@ -107,6 +114,8 @@ export default {
       } else if (type === 2 || type === 3) {
         this.currentRow = JSON.parse(JSON.stringify({...row, type}))
         this.consumeSwitch = true
+      } else if (type === 4) {
+        this.generalSwitch = true
       } else {
         this.currentRow = {}
         this.editSwitch = true
@@ -136,10 +145,15 @@ export default {
       })
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      console.log(`每页 ${val} 条`)
+      this.pageMsg.page = 1
+      this.pageMsg.pageSize = val
+      this.getList()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      console.log(`当前页: ${val}`)
+      this.pageMsg.page = val
+      this.getList()
     }
   }
 }

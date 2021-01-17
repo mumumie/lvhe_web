@@ -116,9 +116,14 @@ export default {
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
+      this.pageMsg.page = 1
+      this.pageMsg.pageSize = val
+      this.getList()
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
+      this.pageMsg.page = val
+      this.getList()
     }
   }
 }

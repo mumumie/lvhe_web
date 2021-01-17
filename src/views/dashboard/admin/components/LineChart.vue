@@ -29,6 +29,10 @@ export default {
     chartData: {
       type: Object,
       required: true
+    },
+    xAxis:  {
+      type: Array,
+      required: true
     }
   },
   data() {
@@ -64,7 +68,7 @@ export default {
     setOptions({ expectedData, actualData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: this.xAxis,
           boundaryGap: false,
           axisTick: {
             show: false
@@ -90,10 +94,10 @@ export default {
           }
         },
         legend: {
-          data: ['expected', 'actual']
+          data: ['当前月', '上月']
         },
         series: [{
-          name: 'expected', itemStyle: {
+          name: '当前月', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -109,7 +113,7 @@ export default {
           animationEasing: 'cubicInOut'
         },
         {
-          name: 'actual',
+          name: '上月',
           smooth: true,
           type: 'line',
           itemStyle: {

@@ -35,6 +35,13 @@ export const vip_level = [
   { label: '至尊卡', value: 4 }
 ]
 
+export const logsType = [
+  { label: '会员新增', value: 1 },
+  { label: '会员消费', value: 2 },
+  { label: '会员充值', value: 3 },
+  { label: '散客消费', value: 4 }
+]
+
 export const department = [
   '南湖店',
   '光谷店'

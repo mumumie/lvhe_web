@@ -4,7 +4,7 @@
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" />
+      <line-chart :chart-data="lineChartData" :xAxis="xAxis" />
     </el-row>
 
     <el-row :gutter="32">
@@ -52,6 +52,7 @@ const lineChartData = {
     actualData: [120, 82, 91, 154, 162, 140, 130]
   }
 }
+const xAxis = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 export default {
   name: 'DashboardAdmin',
@@ -64,12 +65,64 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      lineChartData: lineChartData.newVisitis,
+      xAxis: xAxis
     }
+  },
+  created() {
+    this.getStatistics()
   },
   methods: {
     handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
+      switch (type) {
+        case 1:
+          this.lineChartData = lineChartData.newVisitis
+          break
+        case 2:
+          this.lineChartData = lineChartData.messages
+          break
+        case 3:
+          this.lineChartData = lineChartData.purchases
+          break
+        case 4:
+          this.lineChartData = lineChartData.shoppings
+          break
+        default:
+          this.lineChartData = lineChartData.newVisitis
+      }
+    },
+    getStatistics() {
+      const params = {
+        type: 1,
+        date: this.getCurrentDate()
+      }
+      this.$ajax.vpost('/logs/monthCustomer', params).then(res => {
+        console.log(res);
+      })
+    },
+    getCurrentDate(type = 'current') {
+      const date = new Date()
+      let year = date.getFullYear()
+      let month = date.getMonth() + 1
+      let lastTime
+      if (type === 'previous') {
+        if (month !== 1) {
+          month --
+        } else {
+          month = 12
+          year -= 1
+        }
+        if (month < 10) {
+          month = '0' + month
+        }
+      }
+      if (month === 12) {
+        lastTime = new Date(`${year + 1}-01`).getTime()
+      } else {
+        lastTime = new Date(`${year}-${Number(month) + 1}`).getTime()
+      }
+      const time = new Date(`${year}-${month}`).getTime()
+      return [time, lastTime]
     }
   }
 }
