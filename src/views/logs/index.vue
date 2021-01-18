@@ -20,12 +20,12 @@
       stripe
       style="width: 100%"
     >
-      <el-table-column prop="customer_info[0].nickname" label="客户姓名" show-overflow-tooltip min-width="100" />
-      <el-table-column prop="type" label="日志类型" show-overflow-tooltip min-width="100" :formatter="formatFilter"/>
+      <el-table-column prop="customer_info.nickname" label="客户姓名" show-overflow-tooltip min-width="100" :formatter="customerFilter" />
+      <el-table-column prop="type" label="日志类型" show-overflow-tooltip min-width="100" :formatter="formatFilter" />
       <el-table-column prop="sum" label="余额" show-overflow-tooltip min-width="100" />
       <el-table-column prop="consume_sum" label="消费金额" show-overflow-tooltip min-width="100" />
       <el-table-column prop="recharge_sum" label="充值金额" show-overflow-tooltip min-width="100" />
-      <el-table-column prop="user_info[0].nickname" label="操作人" show-overflow-tooltip min-width="100" />
+      <el-table-column prop="user_info.nickname" label="操作人" show-overflow-tooltip min-width="100" />
       <el-table-column prop="create_at" label="时间" show-overflow-tooltip min-width="100" :formatter="parseTime" />
     </el-table>
     <div class="page-box">
@@ -70,6 +70,9 @@ export default {
     this.getList()
   },
   methods: {
+    customerFilter(row, column, val, index) {
+      return val || '散客'
+    },
     parseTime(row, column, val, index) {
       return parseTime(val, '{y}-{m}-{d} {h}:{i}')
     },
@@ -98,18 +101,19 @@ export default {
         }
       }
       this.$ajax.vpost('/logs/list', params).then(res => {
-        this.tableData = res.list
-        this.totalNum = res.total
+        this.tableData = res.list.map(v => ({
+          ...v,
+          ...v.obj
+        }))
+        this.totalNum = res.totalNum
       })
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
       this.pageMsg.page = 1
       this.pageMsg.pageSize = val
       this.getList()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
       this.pageMsg.page = val
       this.getList()
     }
@@ -122,7 +126,6 @@ export default {
     padding: 20px;
     background-color: rgb(240, 242, 245);
     position: relative;
-    height: calc(100vh - 90px);
     .page-box {
       text-align: center;
       margin-top:20px;
