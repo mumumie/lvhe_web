@@ -189,3 +189,7 @@ aside {
 .multiselect--active {
   z-index: 1000 !important;
 }
+
+.customer-table .el-table__body .el-table__row {
+  cursor: pointer;
+}

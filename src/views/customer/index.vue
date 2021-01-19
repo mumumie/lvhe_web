@@ -1,6 +1,6 @@
 <template>
   <div class="content-box">
-    <el-form :model="ruleForm" ref="ruleForm" inline class="demo-ruleForm">
+    <el-form ref="ruleForm" :model="ruleForm" inline class="demo-ruleForm">
       <el-form-item label="">
         <el-input v-model="ruleForm.nickname" placeholder="姓名" />
       </el-form-item>
@@ -18,37 +18,41 @@
     <el-table
       :data="tableData"
       stripe
-      style="width: 100%">
+      class="customer-table"
+      style="width: 100%"
+      @row-click="customerClick"
+    >
       <el-table-column prop="customer_id" label="ID" show-overflow-tooltip min-width="130" />
       <el-table-column prop="nickname" label="姓名" show-overflow-tooltip min-width="80" />
       <el-table-column prop="tel" label="电话" show-overflow-tooltip min-width="100" />
-      <el-table-column prop="sum" label="金额" show-overflow-tooltip min-width="100"  />
+      <el-table-column prop="sum" label="金额" show-overflow-tooltip min-width="100" />
       <el-table-column prop="vip_level" label="会员" show-overflow-tooltip min-width="80" :formatter="(a,b,c) => formatVip(c)" />
       <el-table-column prop="department" label="店铺" show-overflow-tooltip min-width="100" />
       <el-table-column prop="introduction" label="备注" show-overflow-tooltip min-width="100" />
       <el-table-column label="操作" width="150">
         <template slot-scope="scope">
-          <el-button type="text" @click="editHandle(scope.row, 3)">消费</el-button>
-          <el-button type="text" @click="editHandle(scope.row, 2)">充值</el-button>
-          <el-button type="text" @click="editHandle(scope.row, 1)">编辑</el-button>
-<!--          <el-button type="text" @click="delelteHandle(scope.row)">删除</el-button>-->
+          <el-button type="text" size="mini" @click="editHandle(scope.row, 3)">消费</el-button>
+          <el-button type="text" size="mini" @click="editHandle(scope.row, 2)">充值</el-button>
+          <el-button type="text" size="mini" @click="editHandle(scope.row, 1)">编辑</el-button>
+          <!--          <el-button type="text" @click="delelteHandle(scope.row)">删除</el-button>-->
         </template>
       </el-table-column>
     </el-table>
     <div class="page-box">
       <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
         :current-page="pageMsg.page"
         :page-sizes="[10, 20, 50, 100]"
         :page-size="pageMsg.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="totalNum">
-      </el-pagination>
+        :total="totalNum"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
     </div>
     <!--    新增编辑-->
     <user-edit
       :data-info="currentRow"
+      :user-list="userList"
       :switch-btn="editSwitch"
       @close="editSwitch = false"
       @success="getList"
@@ -56,6 +60,7 @@
     <!--    扣款 升级-->
     <consume-edit
       :data-info="currentRow"
+      :user-list="userList"
       :switch-btn="consumeSwitch"
       @close="consumeSwitch = false"
       @success="getList"
@@ -63,6 +68,7 @@
     <!--    散户消费 -->
     <consume-general
       :switch-btn="generalSwitch"
+      :user-list="userList"
       @close="generalSwitch = false"
     />
   </div>
@@ -72,7 +78,7 @@
 import { vip_level } from '@/utils/formatter'
 export default {
   name: 'Customer',
-  components:{
+  components: {
     UserEdit: () => import('./edit'),
     ConsumeEdit: () => import('./consume-edit'),
     ConsumeGeneral: () => import('./consume-general')
@@ -92,11 +98,13 @@ export default {
       currentRow: null,
       editSwitch: false,
       consumeSwitch: false,
-      generalSwitch: false
+      generalSwitch: false,
+      userList: []
     }
   },
   created() {
     this.getList()
+    this.getUserAll()
   },
   methods: {
     formatVip(val) {
@@ -107,12 +115,16 @@ export default {
         return vip.label
       }
     },
+    customerClick(row) {
+      console.log(row)
+      this.$router.push({ path: '/customer/info', query: { id: row._id }})
+    },
     editHandle(row, type) {
       if (type === 1) {
         this.currentRow = JSON.parse(JSON.stringify(row))
         this.editSwitch = true
       } else if (type === 2 || type === 3) {
-        this.currentRow = JSON.parse(JSON.stringify({...row, type}))
+        this.currentRow = JSON.parse(JSON.stringify({ ...row, type }))
         this.consumeSwitch = true
       } else if (type === 4) {
         this.generalSwitch = true
@@ -127,7 +139,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$ajax.vpost('/customer/delete', {id: row._id}).then(res => {
+        this.$ajax.vpost('/customer/delete', { id: row._id }).then(res => {
           this.$message.success('删除成功')
           this.getList()
         })
@@ -142,6 +154,18 @@ export default {
       this.$ajax.vpost('/customer/list', params).then(res => {
         this.tableData = res.list
         this.totalNum = res.totalNum
+      })
+    },
+    getUserAll() {
+      const params = {
+        condition: {
+          username: ''
+        },
+        page: 1,
+        pageSize: 10
+      }
+      this.$ajax.vpost('/user/list', params).then(res => {
+        this.userList = res.list
       })
     },
     handleSizeChange(val) {

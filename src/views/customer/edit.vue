@@ -41,6 +41,16 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="销售人员" prop="userid">
+        <el-select v-model="ruleForm.userid" placeholder="请选择销售人员" :disabled="isEdit" style="width: 100%;">
+          <el-option
+            v-for="item in userList"
+            :key="item.user_id"
+            :label="item.nickname"
+            :value="item.user_id"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="ruleForm.remark" type="textarea" placeholder="备注..." :rows="3" />
       </el-form-item>
@@ -55,33 +65,42 @@
 <script>
 import { vip_level, department } from '@/utils/formatter'
 import { mapGetters } from 'vuex'
-const defaultForm = {
+
+const defaultForm = () => ({
   nickname: '',
   tel: '',
   department: '南湖店',
   vip_level: 0,
   sum: 0,
-  remark: ''
-}
+  remark: '',
+  userid: ''
+})
+
 export default {
-  props: ['switchBtn', 'dataInfo'],
+  props: ['switchBtn', 'dataInfo', 'userList'],
   data() {
+    const checkPhone = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('手机号不能为空'))
+      } else {
+        const reg = /^1[3|4|5|7|8][0-9]\d{8}$/
+        if (reg.test(value)) {
+          callback()
+        } else {
+          return callback(new Error('请输入正确的手机号'))
+        }
+      }
+    }
     return {
       dialogVisible: false,
-      ruleForm: {
-        nickname: '',
-        tel: '',
-        department: '南湖店',
-        vip_level: 0,
-        sum: 0,
-        remark: ''
-      },
+      ruleForm: defaultForm(),
       rules: {
         nickname: [
           { required: true, message: '请输入姓名', trigger: 'blur' }
         ],
         tel: [
-          { required: true, message: '请输入电话', trigger: 'blur' }
+          { required: true, message: '请输入电话', trigger: 'blur' },
+          { validator: checkPhone, trigger: 'blur' }
         ],
         vip_level: [
           { required: true, message: '请选择会员等级', trigger: 'change' }
@@ -90,7 +109,10 @@ export default {
           { required: true, message: '请选择店铺', trigger: 'change' }
         ],
         sum: [
-          { required: true, message: '请选择店铺', trigger: 'change' }
+          { required: true, message: '输入金额', trigger: 'blur' }
+        ],
+        userid: [
+          { required: true, message: '请选择销售人员', trigger: 'change' }
         ]
       }
     }
@@ -102,8 +124,9 @@ export default {
           if (this.dataInfo._id) {
             this.ruleForm = this.dataInfo
           } else {
-            this.ruleForm = Object.assign(defaultForm)
+            this.ruleForm = defaultForm()
           }
+          this.ruleForm.userid = this.userinfo.user_id
         }
       }
     }

@@ -4,7 +4,7 @@
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" :xAxis="xAxis" />
+      <line-chart :chart-data="lineChartData" :x-axis="xAxis" />
     </el-row>
 
     <el-row :gutter="32">
@@ -36,7 +36,7 @@ import BarChart from './components/BarChart'
 
 const lineChartData = {
   newVisitis: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
+    expectedData: [100, 0, 161, 134, 105, 160, 165],
     actualData: [120, 82, 91, 154, 162, 140, 145]
   },
   messages: {
@@ -54,6 +54,8 @@ const lineChartData = {
 }
 const xAxis = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+const getIndex = (date) => date.split('-')[2] * 1
+
 export default {
   name: 'DashboardAdmin',
   components: {
@@ -69,36 +71,57 @@ export default {
       xAxis: xAxis
     }
   },
-  created() {
+  async created() {
+    await this.getXAxis()
     this.getStatistics()
   },
   methods: {
-    handleSetLineChartData(type) {
-      switch (type) {
-        case 1:
-          this.lineChartData = lineChartData.newVisitis
-          break
-        case 2:
-          this.lineChartData = lineChartData.messages
-          break
-        case 3:
-          this.lineChartData = lineChartData.purchases
-          break
-        case 4:
-          this.lineChartData = lineChartData.shoppings
-          break
-        default:
-          this.lineChartData = lineChartData.newVisitis
+    async getXAxis() {
+      const num = this.getDays()
+      const xAxis = []
+      for (let i = 1; i <= num; i++) {
+        xAxis.push(i)
       }
+      this.xAxis = xAxis
     },
-    getStatistics() {
-      const params = {
-        type: 1,
-        date: this.getCurrentDate()
-      }
-      this.$ajax.vpost('/logs/monthCustomer', params).then(res => {
-        console.log(res);
+    handleSetLineChartData(type) {
+      this.getStatistics(type)
+    },
+    getStatistics(type = 1) {
+      Promise.all([
+        this.$ajax.vpost('/logs/monthCustomer', { type, date: this.getCurrentDate() }),
+        this.$ajax.vpost('/logs/monthCustomer', { type, date: this.getCurrentDate('previous') })
+      ]).then(res => {
+        const current = []
+        const previous = []
+        this.xAxis.forEach(v => {
+          const curr = res[0].list.find(item => getIndex(item._id) === v)
+          const prev = res[1].list.find(item => getIndex(item._id) === v)
+          if (curr) {
+            current.push(curr.totalPrice)
+          } else {
+            current.push(0)
+          }
+          if (prev) {
+            previous.push(prev.totalPrice)
+          } else {
+            previous.push(0)
+          }
+        })
+        this.lineChartData = {
+          expectedData: current,
+          actualData: previous
+        }
       })
+    },
+    // 获取当月天数
+    getDays() {
+      const curDate = new Date()
+      const curMonth = curDate.getMonth()
+      curDate.setMonth(curMonth + 1)
+      curDate.setDate(0)
+      /* 返回当月的天数 */
+      return curDate.getDate()
     },
     getCurrentDate(type = 'current') {
       const date = new Date()
@@ -107,7 +130,7 @@ export default {
       let lastTime
       if (type === 'previous') {
         if (month !== 1) {
-          month --
+          month--
         } else {
           month = 12
           year -= 1

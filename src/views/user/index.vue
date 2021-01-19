@@ -30,7 +30,7 @@
       <el-table-column prop="introduction" label="备注" show-overflow-tooltip min-width="100" />
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="editHandle(scope.row, 1)">编辑</el-button>
+          <el-button type="text" size="mini" @click="editHandle(scope.row, 1)">编辑</el-button>
           <!--          <el-button type="text" @click="delelteHandle(scope.row)">删除</el-button>-->
         </template>
       </el-table-column>

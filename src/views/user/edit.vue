@@ -22,7 +22,7 @@
       <el-form-item label="角色" prop="role">
         <el-select v-model="ruleForm.role" placeholder="请选择角色">
           <el-option label="管理员" :value="1" />
-          <el-option label="店员" :value="2" />
+          <el-option label="员工" :value="2" />
         </el-select>
       </el-form-item>
       <el-form-item label="店铺名" prop="department">
@@ -48,7 +48,7 @@
 
 <script>
 import { department } from '@/utils/formatter'
-const defaultForm = {
+const defaultForm = () => ({
   username: '',
   password: '',
   nickname: '',
@@ -56,22 +56,26 @@ const defaultForm = {
   role: 2,
   department: '南湖店',
   introduction: ''
-}
+})
 
 export default {
   props: ['switchBtn', 'dataInfo'],
   data() {
+    const checkPhone = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('手机号不能为空'))
+      } else {
+        const reg = /^1[3|4|5|7|8][0-9]\d{8}$/
+        if (reg.test(value)) {
+          callback()
+        } else {
+          return callback(new Error('请输入正确的手机号'))
+        }
+      }
+    }
     return {
       dialogVisible: false,
-      ruleForm: {
-        username: '',
-        password: '',
-        nickname: '',
-        tel: '',
-        role: '',
-        department: '',
-        introduction: ''
-      },
+      ruleForm: defaultForm(),
       rules: {
         username: [
           { required: true, message: '请输入账号', trigger: 'blur' }
@@ -84,7 +88,8 @@ export default {
           { required: true, message: '请输入姓名', trigger: 'blur' }
         ],
         tel: [
-          { required: true, message: '请输入电话', trigger: 'blur' }
+          { required: true, message: '请输入电话', trigger: 'blur' },
+          { validator: checkPhone, trigger: 'blur' }
         ],
         role: [
           { required: true, message: '请选择角色', trigger: 'change' }
@@ -110,7 +115,7 @@ export default {
           if (this.dataInfo._id) {
             this.ruleForm = this.dataInfo
           } else {
-            this.ruleForm = Object.assign(defaultForm)
+            this.ruleForm = defaultForm()
           }
         }
       }

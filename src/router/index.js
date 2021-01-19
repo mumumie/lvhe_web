@@ -76,7 +76,7 @@ export const constantRoutes = [
         path: 'dashboard',
         component: () => import('@/views/dashboard/index'),
         name: 'Dashboard',
-        meta: { title: '首页', icon: 'dashboard', affix: true }
+        meta: { title: '首页', icon: 'dashboard', affix: true, noCache: true }
       }
     ]
   }
@@ -95,7 +95,14 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/customer/index'),
         name: 'Customer',
-        meta: { title: '会员管理', icon: 'peoples'}
+        meta: { title: '会员管理', icon: 'peoples', affix: false, noCache: true }
+      },
+      {
+        path: 'info',
+        component: () => import('@/views/customer-info/index'),
+        name: 'CustomerInfo',
+        hidden: true,
+        meta: { title: '会员信息', icon: 'user', affix: false, noCache: true }
       }
     ]
   },
@@ -107,7 +114,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/user/index'),
         name: 'User',
-        meta: { title: '用户管理', icon: 'user' }
+        meta: { title: '用户管理', icon: 'user', noCache: true }
       }
     ]
   },
@@ -119,7 +126,7 @@ export const asyncRoutes = [
         path: 'index',
         component: () => import('@/views/logs/index'),
         name: 'Log',
-        meta: { title: '日志管理', icon: 'documentation' }
+        meta: { title: '日志管理', icon: 'documentation', noCache: true }
       }
     ]
   },

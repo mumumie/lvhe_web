@@ -7,8 +7,18 @@
     :before-close="handleClose"
   >
     <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="80px" class="demo-ruleForm">
+      <el-form-item label="销售人员" prop="userid">
+        <el-select v-model="ruleForm.userid" placeholder="请选择销售人员" style="width: 100%;">
+          <el-option
+            v-for="item in userList"
+            :key="item.user_id"
+            :label="item.nickname"
+            :value="item.user_id"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="账户余额">
-        <el-input v-model="ruleForm.sum" :disabled="isEdit">
+        <el-input v-model="ruleForm.sum" :disabled="true">
           <template slot="append">元</template>
         </el-input>
       </el-form-item>
@@ -45,17 +55,20 @@
 
 <script>
 import { discount, vip_level } from '@/utils/formatter'
-import { mapGetters } from "vuex";
-const defaultForm = {
+import { mapGetters } from 'vuex'
+
+const defaultForm = () => ({
   nickname: '',
   tel: '',
   department: '南湖店',
   vip_level: 0,
   sum: 0,
-  remark: ''
-}
+  remark: '',
+  userid: ''
+})
+
 export default {
-  props: ['switchBtn', 'dataInfo'],
+  props: ['switchBtn', 'dataInfo', 'userList'],
   data() {
     const isNum = (rule, value, callback) => {
       const consume = /^[0-9]*$/
@@ -66,7 +79,7 @@ export default {
       }
     }
     return {
-      ruleForm: {},
+      ruleForm: defaultForm(),
       rules: {
         consume: [
           { required: true, message: '请输入消费金额', trigger: 'blur' },
@@ -74,6 +87,9 @@ export default {
         ],
         vip_level: [
           { required: true, message: '请选择会员等级', trigger: 'change' }
+        ],
+        userid: [
+          { required: true, message: '请选择销售人员', trigger: 'change' }
         ]
       }
     }
@@ -94,15 +110,14 @@ export default {
     }
   },
   watch: {
-    switchBtn: {
-      handler(val) {
-        if (val) {
-          if (this.dataInfo._id) {
-            this.ruleForm = this.dataInfo
-          } else {
-            this.ruleForm = Object.assign(defaultForm)
-          }
+    switchBtn(val) {
+      if (val) {
+        if (this.dataInfo._id) {
+          this.ruleForm = this.dataInfo
+        } else {
+          this.ruleForm = defaultForm()
         }
+        this.$set(this.ruleForm, 'userid', this.userinfo.user_id)
       }
     }
   },
@@ -116,7 +131,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = Object.assign({ userid: this.userinfo.user_id }, this.ruleForm)
+          const params = Object.assign({}, this.ruleForm)
           let url = '/customer/consume'
           if (this.isEdit) {
             url = '/customer/recharge'

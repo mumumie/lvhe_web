@@ -12,6 +12,16 @@
           <template slot="append">元</template>
         </el-input>
       </el-form-item>
+      <el-form-item label="销售人员" prop="userid">
+        <el-select v-model="ruleForm.userid" placeholder="请选择销售人员" style="width: 100%;">
+          <el-option
+            v-for="item in userList"
+            :key="item.user_id"
+            :label="item.nickname"
+            :value="item.user_id"
+          />
+        </el-select>
+      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="handleClose">取 消</el-button>
@@ -21,10 +31,10 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from 'vuex'
 
 export default {
-  props: ['switchBtn'],
+  props: ['switchBtn', 'userList'],
   data() {
     const isNum = (rule, value, callback) => {
       const consume = /^(([^0][0-9]+|0)\.([0-9]{1,2})$)|^([^0][0-9]+|0)$/
@@ -36,12 +46,16 @@ export default {
     }
     return {
       ruleForm: {
-        consume: ''
+        consume: '',
+        userid: ''
       },
       rules: {
         consume: [
           { required: true, message: '请输入消费金额', trigger: 'blur' },
           { validator: isNum, trigger: 'blur' }
+        ],
+        userid: [
+          { required: true, message: '请选择销售人员', trigger: 'change' }
         ]
       }
     }
@@ -56,7 +70,8 @@ export default {
       handler(val) {
         if (val) {
           this.ruleForm = {
-            consume: ''
+            consume: '',
+            userid: this.userinfo.user_id
           }
         }
       }
@@ -69,7 +84,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = Object.assign({ userid: this.userinfo.user_id }, this.ruleForm)
+          const params = Object.assign({}, this.ruleForm)
           this.$ajax.vpost('/customer/consumeGeneral', params).then(res => {
             this.$emit('close')
             this.$alert(`成功消费 ￥${params.consume}！`, '消费提示', {
