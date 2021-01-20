@@ -37,8 +37,8 @@ export default {
   props: ['switchBtn', 'userList'],
   data() {
     const isNum = (rule, value, callback) => {
-      const consume = /^(([^0][0-9]+|0)\.([0-9]{1,2})$)|^([^0][0-9]+|0)$/
-      if (!consume.test(value)) {
+      // const consume = /^(([^0][0-9]+|0)\.([0-9]{1,2})$)|^([^0][0-9]+|0)$/
+      if (isNaN(value)) {
         callback(new Error('消费金额只能为数字'))
       } else {
         callback()
