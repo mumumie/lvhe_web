@@ -116,7 +116,6 @@ export default {
       }
     },
     customerClick(row) {
-      console.log(row)
       this.$router.push({ path: '/customer/info', query: { id: row._id }})
     },
     editHandle(row, type) {
@@ -159,7 +158,10 @@ export default {
     getUserAll() {
       const params = {
         condition: {
-          username: ''
+          username: { $ne: 'admin'}
+        },
+        showObj: {
+          password: 0
         },
         page: 1,
         pageSize: 10

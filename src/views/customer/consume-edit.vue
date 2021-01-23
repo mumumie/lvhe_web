@@ -73,7 +73,9 @@ export default {
     const isNum = (rule, value, callback) => {
       const consume = /^[0-9]*$/
       if (!consume.test(value)) {
-        callback(new Error('消费金额只能为整数'))
+        callback(new Error('金额只能为整数'))
+      } else if (Number(value) <= 0) {
+        return callback(new Error('请输入大于0的数'))
       } else {
         callback()
       }
@@ -131,7 +133,10 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = Object.assign({}, this.ruleForm)
+          const params = Object.assign({
+            operator_id: this.userinfo.user_id,
+            operator_dpt: this.userinfo.department
+          }, this.ruleForm)
           let url = '/customer/consume'
           if (this.isEdit) {
             url = '/customer/recharge'

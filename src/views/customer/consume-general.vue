@@ -39,7 +39,9 @@ export default {
     const isNum = (rule, value, callback) => {
       // const consume = /^(([^0][0-9]+|0)\.([0-9]{1,2})$)|^([^0][0-9]+|0)$/
       if (isNaN(value)) {
-        callback(new Error('消费金额只能为数字'))
+        callback(new Error('金额只能为数字'))
+      } else if (Number(value) <= 0) {
+        return callback(new Error('请输入大于0的数'))
       } else {
         callback()
       }
@@ -84,7 +86,10 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = Object.assign({}, this.ruleForm)
+          const params = Object.assign({
+            operator_id: this.userinfo.user_id,
+            operator_dpt: this.userinfo.department
+          }, this.ruleForm)
           this.$ajax.vpost('/customer/consumeGeneral', params).then(res => {
             this.$emit('close')
             this.$alert(`成功消费 ￥${params.consume}！`, '消费提示', {

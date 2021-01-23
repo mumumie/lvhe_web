@@ -106,7 +106,9 @@ export default {
     },
     getList() {
       const params = {
-        condition: this.ruleForm,
+        condition: {
+          username: { $regex: this.ruleForm.username }
+        },
         ...this.pageMsg
       }
       this.$ajax.vpost('/user/list', params).then(res => {

@@ -91,6 +91,15 @@ export default {
         }
       }
     }
+    const isNum = (rule, value, callback) => {
+      if (isNaN(value)) {
+        return callback(new Error('请输入数字'))
+      } else if (Number(value) <= 0) {
+        return callback(new Error('请输入大于0的数'))
+      } else {
+        callback()
+      }
+    }
     return {
       dialogVisible: false,
       ruleForm: defaultForm(),
@@ -109,7 +118,8 @@ export default {
           { required: true, message: '请选择店铺', trigger: 'change' }
         ],
         sum: [
-          { required: true, message: '输入金额', trigger: 'blur' }
+          { required: true, message: '输入金额', trigger: 'blur' },
+          { validator: isNum, trigger: 'blur' }
         ],
         userid: [
           { required: true, message: '请选择销售人员', trigger: 'change' }
@@ -152,7 +162,10 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const params = Object.assign({}, this.ruleForm)
+          const params = Object.assign({
+            operator_id: this.userinfo.user_id,
+            operator_dpt: this.userinfo.department
+          }, this.ruleForm)
           let url = '/customer/add'
           if (params._id) {
             url = '/customer/edit'
