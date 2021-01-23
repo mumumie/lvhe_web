@@ -84,7 +84,7 @@ export default {
       ruleForm: defaultForm(),
       rules: {
         consume: [
-          { required: true, message: '请输入消费金额', trigger: 'blur' },
+          { required: true, message: '请输入金额', trigger: 'blur' },
           { validator: isNum, trigger: 'blur' }
         ],
         vip_level: [

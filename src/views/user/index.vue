@@ -1,6 +1,6 @@
 <template>
   <div class="content-box">
-    <el-form ref="ruleForm" :model="ruleForm" inline class="demo-ruleForm">
+    <el-form ref="ruleForm" :model="ruleForm" inline class="demo-ruleForm" @keyup.enter.native="getList()">
       <el-form-item label="" prop="name">
         <el-input v-model="ruleForm.username" placeholder="账号" />
       </el-form-item>

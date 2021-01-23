@@ -1,6 +1,6 @@
 <template>
   <div class="content-box">
-    <el-form ref="ruleForm" :model="ruleForm" inline class="demo-ruleForm">
+    <el-form ref="ruleForm" :model="ruleForm" inline class="demo-ruleForm" @keyup.enter.native="onSearch()">
       <el-form-item label="">
         <el-input v-model="ruleForm.nickname" placeholder="姓名" />
       </el-form-item>
@@ -8,7 +8,7 @@
         <el-input v-model="ruleForm.tel" placeholder="电话" />
       </el-form-item>
       <el-form-item>
-        <el-button type="danger" @click="getList">查询</el-button>
+        <el-button type="danger" @click="onSearch">查询</el-button>
       </el-form-item>
       <el-form-item style="float:right;">
         <el-button type="warning" @click="editHandle({}, 4)">散客消费</el-button>
@@ -107,6 +107,10 @@ export default {
     this.getUserAll()
   },
   methods: {
+    onSearch() {
+      this.pageMsg.page = 1
+      this.getList()
+    },
     formatVip(val) {
       const vip = vip_level.find(v => v.value === val)
       if (!vip) {
