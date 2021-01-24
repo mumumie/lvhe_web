@@ -86,9 +86,10 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          const dpt = this.userList.find(v => v.user_id === this.ruleForm.userid)
           const params = Object.assign({
             operator_id: this.userinfo.user_id,
-            operator_dpt: this.userinfo.department
+            operator_dpt: dpt.department
           }, this.ruleForm)
           this.$ajax.vpost('/customer/consumeGeneral', params).then(res => {
             this.$emit('close')

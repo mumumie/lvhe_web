@@ -7,32 +7,33 @@
       <line-chart :chart-data="lineChartData" :x-axis="xAxis" />
     </el-row>
 
-    <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <raddar-chart />
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <pie-chart />
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <bar-chart />
-        </div>
-      </el-col>
-    </el-row>
+    <!--    <el-row :gutter="32">-->
+    <!--      <el-col :xs="24" :sm="24" :lg="8">-->
+    <!--        <div class="chart-wrapper">-->
+    <!--          <raddar-chart />-->
+    <!--        </div>-->
+    <!--      </el-col>-->
+    <!--      <el-col :xs="24" :sm="24" :lg="8">-->
+    <!--        <div class="chart-wrapper">-->
+    <!--          <pie-chart />-->
+    <!--        </div>-->
+    <!--      </el-col>-->
+    <!--      <el-col :xs="24" :sm="24" :lg="8">-->
+    <!--        <div class="chart-wrapper">-->
+    <!--          <bar-chart />-->
+    <!--        </div>-->
+    <!--      </el-col>-->
+    <!--    </el-row>-->
   </div>
 </template>
 
 <script>
 import PanelGroup from './components/PanelGroup'
 import LineChart from './components/LineChart'
-import RaddarChart from './components/RaddarChart'
-import PieChart from './components/PieChart'
-import BarChart from './components/BarChart'
+// import RaddarChart from './components/RaddarChart'
+// import PieChart from './components/PieChart'
+// import BarChart from './components/BarChart'
+import { mapGetters } from 'vuex'
 
 const lineChartData = {
   newVisitis: {
@@ -60,16 +61,21 @@ export default {
   name: 'DashboardAdmin',
   components: {
     PanelGroup,
-    LineChart,
-    RaddarChart,
-    PieChart,
-    BarChart
+    LineChart
+    // RaddarChart,
+    // PieChart,
+    // BarChart
   },
   data() {
     return {
       lineChartData: lineChartData.newVisitis,
       xAxis: xAxis
     }
+  },
+  computed: {
+    ...mapGetters([
+      'userinfo'
+    ])
   },
   async created() {
     await this.getXAxis()
@@ -88,9 +94,13 @@ export default {
       this.getStatistics(type)
     },
     getStatistics(type = 1) {
+      let field = 'recharge_sum'
+      if (type === 2 || type === 4) {
+        field = 'consume_sum'
+      }
       Promise.all([
-        this.$ajax.vpost('/logs/monthCustomer', { type, date: this.getCurrentDate() }),
-        this.$ajax.vpost('/logs/monthCustomer', { type, date: this.getCurrentDate('previous') })
+        this.$ajax.vpost('/logs/monthCustomer', { type, date: this.getCurrentDate(), field, operator_dpt: this.userinfo.department }),
+        this.$ajax.vpost('/logs/monthCustomer', { type, date: this.getCurrentDate('previous'), field, operator_dpt: this.userinfo.department })
       ]).then(res => {
         const current = []
         const previous = []
@@ -155,6 +165,7 @@ export default {
 .dashboard-editor-container {
   padding: 20px;
   background-color: rgb(240, 242, 245);
+  min-height: calc(100vh - 90px);
   position: relative;
 
   .github-corner {
