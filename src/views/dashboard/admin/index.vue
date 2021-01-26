@@ -68,7 +68,7 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis,
+      lineChartData: {},
       xAxis: xAxis
     }
   },
